@@ -8,45 +8,65 @@ Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Shows theme-friendly confirmation dialogs before visitors leave your site to external URLs. Define multiple modals in Settings and connect each to triggers via a data attribute or shortcode.
+Shows a confirmation popup before visitors go to another website. You set the text and destination in **Settings → Leave Modal**; you connect the popup to a button or link with a shortcode or a small HTML snippet.
 
 == Description ==
 
-Leave Modal lets you define **one or more modals**, each with its own title, message (HTML allowed), destination label, redirect URL, and footer button labels.
+**What it does**
 
-**Triggers (pick one):**
+When someone clicks your trigger (button or link), they see a popup: your title, your message, the destination address, and **Cancel** / **Continue**. **Cancel** closes the popup. **Continue** sends them to the URL you configured.
 
-* **Data attribute** — On any element: `data-wp-leave-modal="your-slug"` (slug must match a modal defined under **Settings → Leave Modal**). Works in Custom HTML, theme templates, and many page builders that allow custom attributes.
-* **Shortcodes** — `[leave_modal_button modal="your-slug" label="Button text"]`, `[leave_modal_trigger modal="your-slug"]` (alias), or `[leave_modal_link modal="your-slug" href="https://…" label="Link text"]` for an `<a>` trigger. Optional `class="extra-classes"`. You can use `url="…"` instead of `href`.
+You can create **several different popups**. Each one has a short internal name called a **slug** (for example `partner` or `default`). The same name must be used in the shortcode or in the HTML attribute so WordPress knows which popup to show.
 
-* **Anchor links** — Any `<a href="…" data-wp-leave-modal="your-slug">` works like a button trigger. Primary click opens the modal; **Ctrl/Cmd/Shift+click** and **middle-click** keep the browser default (e.g. open in a new tab). If the modal has no **Redirect URL** in settings, a safe `http`/`https` value from the link’s `href` is used for **Continue** (settings URL still wins when set).
+**How to put a trigger on a page (choose one)**
 
-The front end loads **one dialog shell**; opening a trigger fills it from the matching modal configuration. **Continue** is enabled when there is a valid `http` or `https` destination from settings or from the trigger link’s `href` (see above).
+1. **Shortcode (easiest)** — Paste into a post or page (replace `partner` with your slug from Settings):
 
-**Accessibility** — `role="dialog"`, focus trap, Escape to close, focus return to the trigger.
+`[leave_modal_button modal="partner" label="Visit partner site"]`
 
-**Upgrade note** — If you used version 1.0.x, your previous single-modal settings are migrated automatically to a modal with slug `default`.
+Same idea: `[leave_modal_trigger modal="partner" label="More"]`
+
+For a **text link** instead of a button:
+
+`[leave_modal_link modal="partner" href="https://example.com" label="Open partner"]`  
+(You may use `url="https://…"` instead of `href`.)
+
+2. **Custom HTML** — If your theme or builder lets you add HTML, use the same slug as in Settings:
+
+`<button type="button" data-wp-leave-modal="partner">Button text</button>`
+
+Or a normal link:
+
+`<a href="https://example.com" data-wp-leave-modal="partner">Link text</a>`
+
+If **Redirect URL** is empty in Settings but the link has a valid `http`/`https` address, **Continue** uses that link address. If you fill **Redirect URL** in Settings, that value is used instead.
+
+**Modified clicks** — Ctrl/Cmd/Shift+click or middle-click behaves like a normal browser link (e.g. open in a new tab) and does **not** open the popup. A normal single click opens the popup.
+
+**Accessibility** — The popup can be closed with Escape; focus returns to the element that opened it.
+
+**Upgrading from 1.0.x** — Old single-popup settings are moved to one popup with slug `default`. Use `modal="default"` in shortcodes unless you rename it.
 
 == Installation ==
 
-1. Upload the `wp-leave-modal` folder to `/wp-content/plugins/`, or install the zip via **Plugins → Add New → Upload Plugin**.
-2. Activate **Leave Modal** through the **Plugins** menu.
-3. Go to **Settings → Leave Modal**, add or edit modals (each needs a unique **slug**), and save.
-4. Add triggers: place a shortcode in content, or add `data-wp-leave-modal="slug"` to buttons/links in HTML.
+1. Upload the `wp-leave-modal` folder to `wp-content/plugins/`, or upload a zip under **Plugins → Add New → Upload Plugin**.
+2. Activate **Leave Modal** under **Plugins**.
+3. Open **Settings → Leave Modal**. For each popup, set a **slug** (short name), title, message, labels, and **Redirect URL** if you want the destination stored in the admin. Click **Save**.
+4. Add a shortcode to a post or page, or add custom HTML with `data-wp-leave-modal="your-slug"` matching the slug from step 3.
 
 == Frequently Asked Questions ==
 
-= Can I use different modals on the same page? =
+= Can I use different popups on the same page? =
 
-Yes. Each trigger references a modal by **slug**; you can use several slugs on one page.
+Yes. Give each popup its own **slug** in Settings, then use that slug in each shortcode or HTML attribute. You can mix different slugs on one page.
 
-= Where is the modal markup output? =
+= The popup does not appear. What should I check? =
 
-A single dialog shell is printed once in `wp_footer` when assets load (shortcode in content, `data-wp-leave-modal` in post HTML, or the `wp_leave_modal_enqueue` filter).
+Make sure the **slug** in your shortcode or `data-wp-leave-modal` matches a slug under **Settings → Leave Modal** exactly. Put the shortcode in the page content, or include `data-wp-leave-modal` in the post or page HTML. If you only add code in a hard‑coded theme file, you may need a developer to load the plugin scripts (or use the `wp_leave_modal_enqueue` filter).
 
-= Does it work with block themes? =
+= Does it work with block themes (Gutenberg)? =
 
-Yes. Use a Shortcode block or HTML block with `data-wp-leave-modal`.
+Yes. Add a **Shortcode** block for shortcodes, or a **Custom HTML** block if you paste HTML with `data-wp-leave-modal`.
 
 == Changelog ==
 

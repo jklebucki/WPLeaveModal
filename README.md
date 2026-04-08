@@ -1,117 +1,101 @@
 # WPLeaveModal
 
-Repozytorium zawiera wtyczkę WordPress **Leave Modal** — potwierdzenia wyjścia na zewnętrzny adres URL w postaci modala z konfiguracją w kokpicie.
+To repozytorium z wtyczką WordPress **Leave Modal**. Wtyczka pokazuje odwiedzającym **okno z potwierdzeniem** zanim przejdą na inną stronę (zwykle zewnętrzną). Treść okna i adres docelowy ustawiasz w panelu WordPressa — bez programowania.
 
-## Struktura katalogów
+## Co musisz wiedzieć na start
+
+- Wtyczkę wgrywasz jako **folder** `wp-leave-modal` (ten wewnątrz tego repozytorium), nie całe repozytorium.
+- W panelu WordPress: **Wtyczki** → włącz **Leave Modal**, potem **Ustawienia** → **Leave Modal**.
 
 ```
 WPLeaveModal/
-├── README.md                 # ten plik
-└── wp-leave-modal/           # katalog wtyczki (kopiuj do wp-content/plugins/)
-    ├── wp-leave-modal.php
-    ├── readme.txt            # opis w formacie WordPress.org
-    ├── includes/
-    ├── assets/
-    └── …
+├── README.md              ← ta instrukcja
+└── wp-leave-modal/        ← ten folder kopiujesz do WordPressa
 ```
-
-W WordPressie aktywujesz folder `wp-leave-modal` jako wtyczkę (nie całe repozytorium).
 
 ## Wymagania
 
-- WordPress **6.0+**
-- PHP **7.4+**
-
-Licencja wtyczki: **GPL-2.0-or-later** (patrz nagłówek w `wp-leave-modal.php`).
+WordPress **6.0** lub nowszy, PHP **7.4** lub nowszy. Licencja wtyczki: **GPL-2.0-or-later**.
 
 ---
 
-## Krótki manual wtyczki
+## Instrukcja krok po kroku
 
-### Instalacja
+### 1. Instalacja
 
-1. Skopiuj katalog `wp-leave-modal` do `wp-content/plugins/` w swojej instalacji WordPress (albo spakuj go do ZIP i wgraj przez **Wtyczki → Dodaj nową → Wgraj wtyczkę**).
-2. Aktywuj **Leave Modal** w menu **Wtyczki**.
-3. Przejdź do **Ustawienia → Leave Modal** i zapisz modale.
+1. Skopiuj folder **`wp-leave-modal`** do katalogu `wp-content/plugins/` na serwerze  
+   *albo* spakuj go do ZIP i wgraj w **Wtyczki → Dodaj nową → Wgraj wtyczkę**.
+2. Wejdź w **Wtyczki** i kliknij **Włącz** przy **Leave Modal**.
 
-### Co robi wtyczka
+### 2. Konfiguracja okna (w panelu)
 
-Umożliwia zdefiniowanie **wielu modali** (każdy ma unikalny **slug**). Po kliknięciu w wyzwalacz użytkownik widzi dialog z:
+Otwórz **Ustawienia → Leave Modal**. Dla każdego okna (możesz mieć kilka) uzupełnij:
 
-- tytułem,
-- treścią sekcji 1 (dozwolony podstawowy HTML),
-- etykietą i adresem docelowym (sekcja 2),
-- przyciskami **Anuluj** (zamyka modal) i **Kontynuuj** (przekierowanie na zapisany URL).
+| Pole w panelu | Co to znaczy w praktyce |
+|---------------|-------------------------|
+| **Slug** | Krótka **nazwa wewnętrzna** (np. `partner`, `default`). Małe litery, cyfry, myślnik. Ta sama nazwa pojawi się w shortcode i w kodzie strony — musi się zgadzać z tym, co wkleisz na stronie. |
+| **Modal title** | Nagłówek okienka dla odwiedzającego. |
+| **Section 1 — message** | Główny tekst informacji (możesz użyć prostego HTML). |
+| **Section 2 — label before URL** | Krótki tekst nad adresem, np. „Przekierujemy Cię na:”. |
+| **Redirect URL** | Adres strony, na którą ma trafić osoba po kliknięciu **Kontynuuj**. Zostaw puste tylko wtedy, gdy używasz **zwykłego linku** na stronie i adres wpiszesz w samym linku (patrz niżej). |
+| **Cancel / Continue** | Napisy na przyciskach **Anuluj** i **Kontynuuj**. |
 
-Przycisk **Kontynuuj** jest aktywny, gdy dla modala zapisano poprawny adres **albo** wyzwalacz to link `<a href="https://…">` z poprawnym `http`/`https` — wtedy adres z `href` jest używany jako docelowy (gdy pole **Redirect URL** w kokpicie jest puste; jeśli jest wypełnione, ma pierwszeństwo).
+Przycisk **Dodaj modal** / **Usuń** pozwala dodać kolejne okna lub usunąć zbędne. Zapisujesz zmiany przyciskiem WordPressa u dołu strony ustawień.
 
-### Konfiguracja w kokpicie (**Ustawienia → Leave Modal**)
+### 3. Jak wstawić okno na stronie — trzy proste sposoby
 
-- **Slug** — identyfikator używany w HTML i shortcode (np. `partner`, `default`). Małe litery, cyfry, myślniki.
-- **Modal title** — nagłówek okna.
-- **Section 1 — message** — treść informacji (HTML jest filtrowany przy zapisie).
-- **Section 2 — label before URL** — np. „Zostaniesz przekierowany na:”.
-- **Redirect URL** — adres docelowy po **Kontynuuj**.
-- **Cancel / Continue button label** — etykiety przycisków w stopce.
-
-Możesz dodać wiele wierszy (**Add modal** / **Remove**). Przy zapisie slugi są unikalne (duplikaty dostają sufiks `-2`, `-3`, itd.).
-
-### Wyzwalanie modala na stronie
-
-**1) Atrybut `data` (dowolny przycisk lub link w HTML)**
-
-Slug musi odpowiadać wpisowi w ustawieniach:
-
-```html
-<button type="button" data-wp-leave-modal="partner">Przejdź do partnera</button>
-```
-
-Zwykły link — ten sam atrybut; zwykły klik otwiera modal, **Ctrl/Cmd/Shift+klik** i **klik środkowym** zostawiają domyślne zachowanie przeglądarki (np. nowa karta):
-
-```html
-<a href="https://example.org" data-wp-leave-modal="partner">Zewnętrzny link</a>
-```
-
-**2) Shortcode**
-
-Wymagany jest **`modal`** (lub alias **`id`**) ze slugiem:
+**Sposób A — Shortcode (najłatwiejszy, bez HTML)**  
+W treści strony lub wpisu wklej (podstaw swoją **nazwę slug** z ustawień zamiast `partner`):
 
 ```text
-[leave_modal_button modal="partner" label="Otwórz modal"]
+[leave_modal_button modal="partner" label="Idź na stronę partnera"]
 ```
 
-Alias o tej samej funkcji:
+To wstawi **przycisk**. Ten sam efekt ma skrót:
 
 ```text
 [leave_modal_trigger modal="partner" label="Więcej"]
 ```
 
-Opcjonalnie: `class="moja-klasa"` — dodatkowe klasy CSS przycisku.
-
-**3) Shortcode jako link**
+**Sposób B — Shortcode jako zwykły link**
 
 ```text
-[leave_modal_link modal="partner" href="https://example.org" label="Tekst linku"]
+[leave_modal_link modal="partner" href="https://example.org" label="Otwórz stronę partnera"]
 ```
 
-Alias adresu: `url="https://…"` zamiast `href`. Generuje element `<a>` z `data-wp-leave-modal`.
+Zamiast `href` możesz użyć `url="https://…"`.
 
-### Kiedy ładują się skrypty i styl
+**Sposób C — Własny HTML (dla osób, które edytują kod)**  
+Musisz użyć **tej samej nazwy (slug)**, co w **Ustawienia → Leave Modal**:
 
-Zasoby frontowe ładują się, gdy w treści strony jest shortcode, występuje ciąg `data-wp-leave-modal`, albo wtyczka wywołała ładowanie (np. shortcode w widżecie). Motywy mogą wymusić ładowanie przez filtr:
+Przycisk:
 
-```php
-add_filter( 'wp_leave_modal_enqueue', '__return_true' );
+```html
+<button type="button" data-wp-leave-modal="partner">Tekst przycisku</button>
 ```
 
-### Uaktualnienie z wersji 1.0.x
+Zwykły link (adres możesz wpisać tutaj; jeśli w panelu **Redirect URL** jest pusty, **Kontynuuj** użyje tego adresu):
 
-Starsze ustawienia (jeden globalny modal) są automatycznie migrowane do jednego modala ze slugiem **`default`**. Shortcode w nowej wersji wymaga `modal="default"` (lub innego slug ustawionego w panelu).
+```html
+<a href="https://example.org" data-wp-leave-modal="partner">Tekst linku</a>
+```
 
-### Dostępność (a11y)
+**Uwaga:** Kliknięcie z **Ctrl** (Windows) lub **Cmd** (Mac), **Shift**, lub **środkowym przyciskiem myszy** — otwiera link tak jak zwykle w przeglądarce (np. w nowej karcie), **bez** pokazywania okna. Zwykły pojedynczy klik — pokazuje okno.
 
-Modal ma semantykę dialogu, pułapkę fokusu, zamknięcie klawiszem Escape oraz powrót fokusu do elementu, który otworzył okno.
+### 4. Co jeśli okno się nie pokazuje?
+
+Wtyczka ładuje się sama, gdy na stronie jest shortcode albo fragment `data-wp-leave-modal` w treści. Jeśli wklejasz kod tylko w motywie lub w miejscu, którego WordPress „nie widzi” w treści wpisu, poproś osobę od strony o dodanie w motywie krótkiej reguły technicznej albo użyj shortcode w treści strony. (Dla zaawansowanych: filtr `wp_leave_modal_enqueue` — szczegóły w dokumentacji deweloperskiej.)
+
+### 5. Aktualizacja ze starej wersji wtyczki (1.0)
+
+Jeśli wcześniej było jedno globalne okno, ustawienia zostały przeniesione do modala o nazwie **`default`**. W shortcode użyj wtedy `modal="default"`.
 
 ---
 
-Szczegółowy opis przeznaczony na katalog WordPress.org znajduje się w pliku [wp-leave-modal/readme.txt](wp-leave-modal/readme.txt).
+## Ułatwienia dostępu
+
+Okno można zamknąć klawiszem **Escape**; po zamknięciu fokus wraca do przycisku lub linku, który je otworzył.
+
+---
+
+Pełny opis w formacie katalogu WordPress.org: [wp-leave-modal/readme.txt](wp-leave-modal/readme.txt).
