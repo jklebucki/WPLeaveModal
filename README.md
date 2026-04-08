@@ -43,7 +43,7 @@ Umożliwia zdefiniowanie **wielu modali** (każdy ma unikalny **slug**). Po klik
 - etykietą i adresem docelowym (sekcja 2),
 - przyciskami **Anuluj** (zamyka modal) i **Kontynuuj** (przekierowanie na zapisany URL).
 
-Przycisk **Kontynuuj** jest aktywny tylko wtedy, gdy dla danego modala zapisano poprawny adres `http://` lub `https://`.
+Przycisk **Kontynuuj** jest aktywny, gdy dla modala zapisano poprawny adres **albo** wyzwalacz to link `<a href="https://…">` z poprawnym `http`/`https` — wtedy adres z `href` jest używany jako docelowy (gdy pole **Redirect URL** w kokpicie jest puste; jeśli jest wypełnione, ma pierwszeństwo).
 
 ### Konfiguracja w kokpicie (**Ustawienia → Leave Modal**)
 
@@ -66,6 +66,12 @@ Slug musi odpowiadać wpisowi w ustawieniach:
 <button type="button" data-wp-leave-modal="partner">Przejdź do partnera</button>
 ```
 
+Zwykły link — ten sam atrybut; zwykły klik otwiera modal, **Ctrl/Cmd/Shift+klik** i **klik środkowym** zostawiają domyślne zachowanie przeglądarki (np. nowa karta):
+
+```html
+<a href="https://example.org" data-wp-leave-modal="partner">Zewnętrzny link</a>
+```
+
 **2) Shortcode**
 
 Wymagany jest **`modal`** (lub alias **`id`**) ze slugiem:
@@ -81,6 +87,14 @@ Alias o tej samej funkcji:
 ```
 
 Opcjonalnie: `class="moja-klasa"` — dodatkowe klasy CSS przycisku.
+
+**3) Shortcode jako link**
+
+```text
+[leave_modal_link modal="partner" href="https://example.org" label="Tekst linku"]
+```
+
+Alias adresu: `url="https://…"` zamiast `href`. Generuje element `<a>` z `data-wp-leave-modal`.
 
 ### Kiedy ładują się skrypty i styl
 

@@ -73,7 +73,40 @@
 		}
 	}
 
-	function applyModalData(data) {
+	/**
+	 * If modal config has no redirect URL, use a safe http(s) href from the trigger anchor.
+	 *
+	 * @param {Element} triggerEl Trigger element (may be an anchor).
+	 */
+	function applyAnchorHrefFallback(triggerEl) {
+		if (!triggerEl || triggerEl.tagName !== 'A') {
+			return;
+		}
+		if (isSafeRedirectUrl(activeRedirectUrl)) {
+			return;
+		}
+		var raw = triggerEl.getAttribute('href');
+		if (!raw || raw === '#' || raw.toLowerCase().indexOf('javascript:') === 0) {
+			return;
+		}
+		var resolved;
+		try {
+			resolved = new URL(raw, window.location.href).href;
+		} catch (err) {
+			return;
+		}
+		if (!isSafeRedirectUrl(resolved)) {
+			return;
+		}
+		activeRedirectUrl = resolved;
+		if (urlLinkEl) {
+			urlLinkEl.textContent = resolved;
+			urlLinkEl.setAttribute('href', resolved);
+		}
+		updateContinueState();
+	}
+
+	function applyModalData(data, triggerEl) {
 		if (titleEl) {
 			titleEl.textContent = data.title || '';
 		}
@@ -97,6 +130,7 @@
 			continueBtn.title = '';
 		}
 		updateContinueState();
+		applyAnchorHrefFallback(triggerEl);
 	}
 
 	function updateContinueState() {
@@ -142,6 +176,16 @@
 		return v ? String(v).trim() : '';
 	}
 
+	function shouldAllowDefaultNavigation(e) {
+		if (e.button !== 0 && e.button !== undefined) {
+			return true;
+		}
+		if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+			return true;
+		}
+		return false;
+	}
+
 	function onDocumentClick(e) {
 		var el = e.target.closest('[data-wp-leave-modal]');
 		if (!el) {
@@ -151,10 +195,13 @@
 		if (!slug || !modals[slug]) {
 			return;
 		}
+		if (shouldAllowDefaultNavigation(e)) {
+			return;
+		}
 		e.preventDefault();
 		e.stopPropagation();
 		lastFocused = el;
-		applyModalData(modals[slug]);
+		applyModalData(modals[slug], el);
 		setOpen(true);
 	}
 
