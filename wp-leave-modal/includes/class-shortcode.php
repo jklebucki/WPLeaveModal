@@ -154,30 +154,50 @@ class Shortcode {
 	}
 
 	/**
-	 * Whether the singular post content suggests loading modal assets early.
+	 * Whether raw post content string contains a Leave Modal trigger reference.
 	 *
+	 * @param string $content Post content.
 	 * @return bool
 	 */
-	public static function content_should_enqueue_assets() {
-		if ( ! is_singular() ) {
+	public static function post_content_needs_assets( $content ) {
+		if ( ! is_string( $content ) || $content === '' ) {
 			return false;
 		}
-		$post = get_post();
-		if ( ! $post || ! isset( $post->post_content ) ) {
-			return false;
-		}
-		$content = $post->post_content;
-
 		if ( strpos( $content, 'data-wp-leave-modal' ) !== false ) {
 			return true;
 		}
-
 		foreach ( array( self::TAG_BUTTON, self::TAG_TRIGGER, self::TAG_LINK ) as $tag ) {
 			if ( has_shortcode( $content, $tag ) ) {
 				return true;
 			}
 			if ( strpos( $content, '[' . $tag ) !== false ) {
 				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Whether the current main query content suggests loading modal assets early (before shortcodes run).
+	 *
+	 * @return bool
+	 */
+	public static function content_should_enqueue_assets() {
+		if ( is_singular() ) {
+			$post = get_post();
+			if ( $post && isset( $post->post_content ) && self::post_content_needs_assets( $post->post_content ) ) {
+				return true;
+			}
+		}
+
+		// Static front page: shortcode/HTML may live on the Page set as "homepage" while is_singular() is false in edge setups.
+		if ( is_front_page() && ! is_home() ) {
+			$front_id = (int) get_option( 'page_on_front' );
+			if ( $front_id > 0 ) {
+				$front = get_post( $front_id );
+				if ( $front && isset( $front->post_content ) && self::post_content_needs_assets( $front->post_content ) ) {
+					return true;
+				}
 			}
 		}
 

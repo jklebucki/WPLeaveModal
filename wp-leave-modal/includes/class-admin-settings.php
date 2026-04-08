@@ -415,6 +415,16 @@ class Admin_Settings {
 	}
 
 	/**
+	 * Whether at least one modal exists in saved settings (used for asset loading heuristics).
+	 *
+	 * @return bool
+	 */
+	public static function has_any_modal() {
+		$settings = self::get_settings();
+		return ! empty( $settings['modals'] ) && is_array( $settings['modals'] );
+	}
+
+	/**
 	 * Build keyed map slug => modal for front-end JSON.
 	 *
 	 * @return array<string, array<string, string>>

@@ -55,6 +55,10 @@ class Assets {
 
 	/**
 	 * Early enqueue when content suggests a modal is needed.
+	 *
+	 * Page builders (Elementor, Divi, etc.) often store layout outside raw post_content, so shortcodes
+	 * are not visible during wp_enqueue_scripts. When at least one modal is configured, load assets on
+	 * normal frontend requests unless disabled via filter.
 	 */
 	public function maybe_enqueue_from_content() {
 		if ( apply_filters( 'wp_leave_modal_enqueue', false ) ) {
@@ -63,7 +67,43 @@ class Assets {
 		}
 		if ( Shortcode::content_should_enqueue_assets() ) {
 			$this->register_assets();
+			return;
 		}
+
+		/**
+		 * When true (default) and at least one modal exists in settings, enqueue on public frontend views.
+		 * Set to false to only load when a trigger is detected in post_content (saves bytes on sites that
+		 * use builders — then rely on shortcode callbacks calling ensure_enqueued(), or use wp_leave_modal_enqueue).
+		 *
+		 * @since 1.1.2
+		 */
+		if ( apply_filters( 'wp_leave_modal_enqueue_if_configured', true ) && Admin_Settings::has_any_modal() && $this->is_normal_frontend_view() ) {
+			$this->register_assets();
+		}
+	}
+
+	/**
+	 * Skip admin, feeds, REST, and (by default) AJAX so assets load where visitors actually see the page.
+	 *
+	 * @return bool
+	 */
+	private function is_normal_frontend_view() {
+		if ( is_admin() ) {
+			return false;
+		}
+		if ( is_feed() ) {
+			return false;
+		}
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			return false;
+		}
+		if ( wp_doing_ajax() && ! apply_filters( 'wp_leave_modal_enqueue_on_ajax', false ) ) {
+			return false;
+		}
+		if ( function_exists( 'wp_is_json_request' ) && wp_is_json_request() ) {
+			return false;
+		}
+		return true;
 	}
 
 	/**

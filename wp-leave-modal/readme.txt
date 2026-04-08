@@ -4,7 +4,7 @@ Tags: modal, external link, redirect, confirmation, shortcode, accessibility
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -62,13 +62,17 @@ Yes. Give each popup its own **slug** in Settings, then use that slug in each sh
 
 = The popup does not appear. What should I check? =
 
-Make sure the **slug** in your shortcode or `data-wp-leave-modal` matches a slug under **Settings → Leave Modal** exactly. Put the shortcode in the page content, or include `data-wp-leave-modal` in the post or page HTML. If you only add code in a hard‑coded theme file, you may need a developer to load the plugin scripts (or use the `wp_leave_modal_enqueue` filter).
+Make sure the **slug** in your shortcode or `data-wp-leave-modal` matches a slug under **Settings → Leave Modal** exactly. From version **1.1.2**, if you have saved at least one modal in settings, scripts load on normal frontend pages automatically (so page builders that store content outside the raw post editor still work). To turn that off and only load when a trigger appears in the classic post content, use: `add_filter( 'wp_leave_modal_enqueue_if_configured', '__return_false' );` If the popup still never shows, ask a developer to verify nothing blocks scripts, or force loading with: `add_filter( 'wp_leave_modal_enqueue', '__return_true' );`
 
 = Does it work with block themes (Gutenberg)? =
 
 Yes. Add a **Shortcode** block for shortcodes, or a **Custom HTML** block if you paste HTML with `data-wp-leave-modal`.
 
 == Changelog ==
+
+= 1.1.2 =
+* Fix: load CSS/JS when modals exist in settings even if shortcodes are not present in raw `post_content` (page builders, widgets). Optional filter `wp_leave_modal_enqueue_if_configured` to disable.
+* Improve early detection of shortcodes on a static front page.
 
 = 1.1.1 =
 * Anchor triggers: respect modified / middle-click; optional redirect from link `href` when modal Redirect URL is empty.
@@ -84,6 +88,9 @@ Yes. Add a **Shortcode** block for shortcodes, or a **Custom HTML** block if you
 * Initial release: settings page, shortcode, modal UI, assets, and localization-ready strings.
 
 == Upgrade Notice ==
+
+= 1.1.2 =
+Fixes missing popup when using page builders or when triggers are not stored in raw post content.
 
 = 1.1.1 =
 Improves `<a>` triggers and optional `href` fallback for Continue.

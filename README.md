@@ -84,7 +84,11 @@ Zwykły link (adres możesz wpisać tutaj; jeśli w panelu **Redirect URL** jest
 
 ### 4. Co jeśli okno się nie pokazuje?
 
-Wtyczka ładuje się sama, gdy na stronie jest shortcode albo fragment `data-wp-leave-modal` w treści. Jeśli wklejasz kod tylko w motywie lub w miejscu, którego WordPress „nie widzi” w treści wpisu, poproś osobę od strony o dodanie w motywie krótkiej reguły technicznej albo użyj shortcode w treści strony. (Dla zaawansowanych: filtr `wp_leave_modal_enqueue` — szczegóły w dokumentacji deweloperskiej.)
+**Od wersji 1.1.2:** jeśli w **Ustawienia → Leave Modal** masz zapisany choć jeden modal, skrypt i styl ładują się na zwykłych stronach frontu automatycznie — także wtedy, gdy shortcode jest w **Elementorze / innym builderze** (treść nie siedzi w surowym polu wpisu). Wcześniejsze wersje mogły wtedy w ogóle nie dołączać plików.
+
+Jeśli nadal nic nie widać: sprawdź, czy **slug** w shortcode / `data-wp-leave-modal` jest **identyczny** jak pole **Slug** w ustawieniach (małe litery, bez spacji).
+
+**Dla zaawansowanych:** wymuszenie ładowania: `add_filter( 'wp_leave_modal_enqueue', '__return_true' );` — wyłączenie automatycznego ładowania przy skonfigurowanym modalu: `add_filter( 'wp_leave_modal_enqueue_if_configured', '__return_false' );`
 
 ### 5. Aktualizacja ze starej wersji wtyczki (1.0)
 
