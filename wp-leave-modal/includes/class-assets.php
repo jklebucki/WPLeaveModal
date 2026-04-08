@@ -50,7 +50,8 @@ class Assets {
 	 */
 	public function init() {
 		add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_from_content' ), 20 );
-		add_action( 'wp_footer', array( $this, 'print_modal' ), 20 );
+		// Print the modal shell before core footer scripts so modal.js can find it on first run.
+		add_action( 'wp_footer', array( $this, 'print_modal' ), 5 );
 	}
 
 	/**
